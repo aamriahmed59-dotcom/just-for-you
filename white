@@ -1,0 +1,399 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>something for you</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #080b10;
+    --surface: #0d1117;
+    --text: #d4cfc9;
+    --text-dim: #4a4a55;
+    --text-bright: #ede8e0;
+    --accent: #b8a99a;
+    --glow: rgba(184, 169, 154, 0.12);
+    --line: rgba(184, 169, 154, 0.1);
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: twinkle var(--d) ease-in-out infinite;
+    animation-delay: var(--delay);
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: var(--min-op); transform: scale(1); }
+    50%       { opacity: var(--max-op); transform: scale(1.3); }
+  }
+
+  .ambient {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 50% 40% at 30% 60%, rgba(120,100,90,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 50% at 70% 30%, rgba(90,100,130,0.05) 0%, transparent 70%);
+  }
+
+  .scene {
+    position: relative; z-index: 1;
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+
+  .top-label {
+    font-size: 10px; letter-spacing: 4px;
+    text-transform: uppercase; color: var(--text-dim);
+    margin-bottom: 56px;
+    opacity: 0;
+    animation: appear 1.2s 0.3s ease forwards;
+  }
+
+  .card {
+    position: relative;
+    width: min(480px, 88vw);
+    padding: 52px 48px;
+    background: rgba(13,17,23,0.8);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    backdrop-filter: blur(20px);
+    opacity: 0;
+    animation: riseUp 1.4s 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 40px; right: 40px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--accent), transparent);
+    opacity: 0.5;
+  }
+
+  .card::after {
+    content: '';
+    position: absolute;
+    bottom: 20px; right: 20px;
+    width: 4px; height: 4px;
+    background: var(--text-dim);
+    border-radius: 50%; opacity: 0.4;
+  }
+
+  .corner-dot {
+    position: absolute;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--text-dim); opacity: 0.4;
+  }
+  .corner-dot.tl { top: 20px; left: 20px; }
+  .corner-dot.tr { top: 20px; right: 20px; }
+  .corner-dot.bl { bottom: 20px; left: 20px; }
+
+  .message-wrap {
+    min-height: 120px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 44px; position: relative;
+  }
+
+  .message {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(22px, 4vw, 30px);
+    font-weight: 300; font-style: italic;
+    color: var(--text-bright);
+    text-align: center; line-height: 1.6;
+    letter-spacing: 0.3px;
+    position: absolute; width: 100%;
+  }
+
+  .message.entering { animation: msgIn 0.9s cubic-bezier(0.16,1,0.3,1) forwards; }
+  .message.leaving  { animation: msgOut 0.4s ease forwards; }
+
+  @keyframes msgIn {
+    from { opacity:0; transform:translateY(14px) scale(0.97); filter:blur(4px); }
+    to   { opacity:1; transform:translateY(0)    scale(1);    filter:blur(0); }
+  }
+  @keyframes msgOut {
+    from { opacity:1; transform:translateY(0)     scale(1);    filter:blur(0); }
+    to   { opacity:0; transform:translateY(-10px) scale(0.98); filter:blur(3px); }
+  }
+
+  .quote-mark {
+    position: absolute; top: -8px; left: -4px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 80px; color: var(--accent);
+    opacity: 0.08; line-height: 1;
+    pointer-events: none; font-style: normal;
+  }
+
+  .divider {
+    width: 32px; height: 1px;
+    background: linear-gradient(to right, transparent, var(--accent), transparent);
+    margin: 0 auto 36px; opacity: 0.4;
+  }
+
+  .btn-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+
+  .btn {
+    position: relative;
+    background: transparent;
+    border: 1px solid rgba(184,169,154,0.25);
+    color: var(--accent);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px; letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 14px 36px; border-radius: 2px;
+    cursor: pointer; transition: all 0.4s ease;
+    overflow: hidden;
+  }
+
+  .btn::before {
+    content: ''; position: absolute; inset: 0;
+    background: var(--glow); opacity: 0; transition: opacity 0.4s;
+  }
+
+  .btn:hover { border-color: rgba(184,169,154,0.5); color: var(--text-bright); box-shadow: 0 0 30px rgba(184,169,154,0.08); }
+  .btn:hover::before { opacity: 1; }
+  .btn:active { transform: scale(0.97); }
+
+  .btn-hint { font-size: 10px; letter-spacing: 1.5px; color: var(--text-dim); text-transform: uppercase; }
+
+  .counter {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    font-size: 10px; letter-spacing: 2px; color: var(--text-dim);
+    white-space: nowrap; transition: opacity 0.3s;
+  }
+
+  .ripple {
+    position: absolute; border-radius: 50%;
+    background: rgba(184,169,154,0.15);
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+
+  .particle {
+    position: fixed; pointer-events: none;
+    border-radius: 50%; z-index: 10;
+    animation: floatUp 1.4s ease-out forwards;
+  }
+  @keyframes floatUp {
+    0%   { opacity: 0.8; transform: translateY(0) scale(1); }
+    100% { opacity: 0;   transform: translateY(-80px) scale(0.2); }
+  }
+
+  .bottom-bar {
+    margin-top: 40px;
+    display: flex; align-items: center; gap: 20px;
+    opacity: 0;
+    animation: appear 1.2s 1.2s ease forwards;
+  }
+
+  .dot-nav { display: flex; gap: 8px; }
+
+  .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%; background: var(--text-dim);
+    transition: all 0.4s ease;
+  }
+  .dot.active { background: var(--accent); box-shadow: 0 0 8px var(--accent); transform: scale(1.3); }
+
+  @keyframes appear { from { opacity:0; } to { opacity:1; } }
+  @keyframes riseUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+
+  .breath-ring {
+    position: fixed; top: 50%; left: 50%; translate: -50% -50%;
+    width: 600px; height: 600px;
+    border: 1px solid rgba(184,169,154,0.04);
+    border-radius: 50%;
+    animation: breathe 6s ease-in-out infinite;
+    pointer-events: none; z-index: 0;
+  }
+  .breath-ring:nth-child(2) { width:400px; height:400px; animation-delay:-2s; border-color:rgba(184,169,154,0.03); }
+
+  @keyframes breathe {
+    0%,100% { transform: translate(-50%,-50%) scale(1); opacity:0.5; }
+    50%      { transform: translate(-50%,-50%) scale(1.05); opacity:1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div class="ambient"></div>
+<div class="breath-ring"></div>
+<div class="breath-ring"></div>
+
+<div class="scene">
+  <div class="top-label">a moment for you</div>
+
+  <div class="card" id="card">
+    <div class="corner-dot tl"></div>
+    <div class="corner-dot tr"></div>
+    <div class="corner-dot bl"></div>
+
+    <div class="message-wrap">
+      <div class="quote-mark">"</div>
+      <div class="message entering" id="message">Talking to you feels easy.</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="btn-wrap">
+      <button class="btn" id="btn" onclick="nextMessage(event)">next feeling</button>
+      <div class="btn-hint" id="hint">click to explore</div>
+    </div>
+
+    <div class="counter" id="counter">01 / 12</div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="dot-nav" id="dots"></div>
+  </div>
+</div>
+
+<script>
+const messages = [
+  "Talking to you feels easy.",
+  "You bring a calm feeling into my day.",
+  "I like your energy.",
+  "You make things feel lighter.",
+  "There's something genuine about you.",
+  "You have a way of making people feel seen.",
+  "Your presence is quietly comforting.",
+  "I enjoy the little moments we share.",
+  "You carry a warmth that stays.",
+  "Not everyone notices the small things — you do.",
+  "You make ordinary moments feel like something.",
+  "I'm glad you exist in my world."
+];
+
+let current = 0;
+let busy = false;
+
+// Stars
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 90; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const size = Math.random() * 1.5 + 0.5;
+  s.style.cssText = `
+    width:${size}px; height:${size}px;
+    top:${Math.random()*100}%; left:${Math.random()*100}%;
+    --d:${3+Math.random()*5}s; --delay:${Math.random()*6}s;
+    --min-op:${0.05+Math.random()*0.1}; --max-op:${0.2+Math.random()*0.4};
+  `;
+  starsEl.appendChild(s);
+}
+
+// Dots
+const dotsEl = document.getElementById('dots');
+messages.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.id = `dot-${i}`;
+  dotsEl.appendChild(d);
+});
+
+function updateCounter() {
+  const n = String(current+1).padStart(2,'0');
+  const t = String(messages.length).padStart(2,'0');
+  document.getElementById('counter').textContent = `${n} / ${t}`;
+}
+
+function updateDots() {
+  messages.forEach((_,i) => {
+    document.getElementById(`dot-${i}`).className = 'dot' + (i===current?' active':'');
+  });
+}
+
+function spawnParticles(x, y) {
+  const colors = ['#b8a99a','#9090a8','#c4b8b0','#7a8a9a'];
+  for (let i = 0; i < 8; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = 3 + Math.random() * 4;
+    const angle = Math.random() * 360;
+    const dist = 20 + Math.random() * 40;
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${x}px; top:${y}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${0.8+Math.random()*0.8}s;
+      animation-delay:${Math.random()*0.15}s;
+      transform:translate(${Math.cos(angle*Math.PI/180)*dist}px,${Math.sin(angle*Math.PI/180)*dist}px);
+    `;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 1600);
+  }
+}
+
+function addRipple(btn, e) {
+  const rect = btn.getBoundingClientRect();
+  const r = document.createElement('div');
+  r.className = 'ripple';
+  const size = Math.max(rect.width, rect.height);
+  r.style.cssText = `
+    width:${size}px; height:${size}px;
+    left:${e.clientX-rect.left-size/2}px;
+    top:${e.clientY-rect.top-size/2}px;
+  `;
+  btn.appendChild(r);
+  setTimeout(() => r.remove(), 700);
+}
+
+function nextMessage(e) {
+  if (busy) return;
+  busy = true;
+
+  const btn = document.getElementById('btn');
+  const msgEl = document.getElementById('message');
+  const hint = document.getElementById('hint');
+
+  addRipple(btn, e);
+  spawnParticles(e.clientX, e.clientY);
+
+  hint.textContent = '✦';
+  setTimeout(() => { hint.textContent = 'click to explore'; }, 800);
+
+  msgEl.classList.remove('entering');
+  msgEl.classList.add('leaving');
+
+  setTimeout(() => {
+    current = (current + 1) % messages.length;
+    msgEl.textContent = messages[current];
+    msgEl.classList.remove('leaving');
+    msgEl.classList.add('entering');
+    updateCounter();
+    updateDots();
+
+    if (current === messages.length - 1) {
+      btn.textContent = 'from the start ↺';
+      setTimeout(() => { btn.textContent = 'next feeling'; }, 3000);
+    }
+
+    setTimeout(() => { busy = false; }, 900);
+  }, 380);
+}
+
+updateCounter();
+</script>
+</body>
+</html>
